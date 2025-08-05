@@ -29,11 +29,32 @@ form.addEventListener('submit', async (event) => {
             <h3>${meal.strMeal}</h3>
             <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
             <p><a href="${meal.strSource || meal.strYoutube}" target="_blank">View Recipe</a></p>
+            <button class="fav-btn" data-id="${meal.idMeal}">Add to Favorites</button>
             `;
             resultsDiv.appendChild(mealCard);
+        });
+        //Add event listeners to favorite buttons
+        document.querySelectorAll('.fav-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const mealId = button.getAttribute('data-id');
+                const meal = data.meals.find(m => m.idMeal === mealId);
+
+                saveToFavourites(meal);
+                button.textContent = 'Added to Favorites';
+            });
         });
     } catch (error) {
         console.error('Error fetching data:', error);
         resultsDiv.innerHTML = `<p>Error fetching results. Please try again later.</p>`;
     }
 });
+
+function saveToFavourites(meal) {
+    let favourites = JSON.parse(localStorage.getItem("favourites")) || [];
+
+    //Avoiding duplicates
+    if (favourites.some(fav => fav.idMeal === meal.idMeal)) return;
+
+    favourites.push(meal);
+    localStorage.setItem("favourites", JSON.stringify(favourites));
+};
