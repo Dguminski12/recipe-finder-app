@@ -49,6 +49,8 @@ form.addEventListener('submit', async (event) => {
     }
 });
 
+
+//Function to add a meal to favorites
 function saveToFavourites(meal) {
     let favourites = JSON.parse(localStorage.getItem("favourites")) || [];
 
@@ -58,3 +60,45 @@ function saveToFavourites(meal) {
     favourites.push(meal);
     localStorage.setItem("favourites", JSON.stringify(favourites));
 };
+
+const viewFavsButton = document.getElementById('view-favs-btn');
+
+viewFavsButton.addEventListener('click', () => {
+    const favourites = JSON.parse(localStorage.getItem("favourites")) || [];
+
+    if (favourites.length === 0) {
+        resultsDiv.innerHTML = '<p>No favorites found.</p>';
+        return;
+    };
+
+    resultsDiv.innerHTML = '';
+    favourites.forEach(meal => {
+        const mealCard = document.createElement('div');
+        mealCard.className = "meal-card";
+        mealCard.innerHTML = `
+            <h3>${meal.strMeal}</h3>
+            <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
+            <p><a href="${meal.strSource || meal.strYoutube}" target="_blank">View Recipe</a></p>
+            <button class="remove-btn" data-id="${meal.idMeal}">Remove from Favorites</button>
+        `;
+        resultsDiv.appendChild(mealCard);
+    });
+});
+
+//Add remove functionality for favorites
+document.querySelectorAll("remove-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        const mealId = button.getAttribute("data-id");
+        removeFromFavourites(mealId);
+        button.textContent = 'Removed from Favorites';
+    });
+});
+
+//Function to remove a meal from favorites
+function removeFromFavourites(mealId) {
+    let favourites = JSON.parse(localStorage.getItem("favourites")) || [];
+    favourites = favourites.filter(meal => meal.idMeal !== mealId);
+    localStorage.setItem("favourites", JSON.stringify(favourites));
+    //Refresh the favorites view
+    viewFavsButton.click();
+}
