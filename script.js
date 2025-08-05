@@ -11,7 +11,7 @@ form.addEventListener('submit', async (event) => {
     resultsDiv.innerHTML = '';
 
     try {
-        const response = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=chicken");
+        const response = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=" + input.value);
         const data = await response.json();
     
     //Check for results
@@ -61,6 +61,15 @@ function saveToFavourites(meal) {
     localStorage.setItem("favourites", JSON.stringify(favourites));
 };
 
+//Function to remove a meal from favorites
+function removeFromFavourites(mealId) {
+    let favourites = JSON.parse(localStorage.getItem("favourites")) || [];
+    favourites = favourites.filter(meal => meal.idMeal !== mealId);
+    localStorage.setItem("favourites", JSON.stringify(favourites));
+    //Refresh the favorites view
+    viewFavsButton.click();
+};
+
 const viewFavsButton = document.getElementById('view-favs-btn');
 
 viewFavsButton.addEventListener('click', () => {
@@ -83,22 +92,14 @@ viewFavsButton.addEventListener('click', () => {
         `;
         resultsDiv.appendChild(mealCard);
     });
+    //Add remove functionality for favorites
+    document.querySelectorAll(".remove-btn").forEach(button => {
+        button.addEventListener("click", () => {
+            const mealId = button.getAttribute("data-id");
+            removeFromFavourites(mealId);
+            button.textContent = 'Removed from Favorites';
+            console.log(mealId)
+        });
+    });   
 });
 
-//Add remove functionality for favorites
-document.querySelectorAll("remove-btn").forEach(button => {
-    button.addEventListener("click", () => {
-        const mealId = button.getAttribute("data-id");
-        removeFromFavourites(mealId);
-        button.textContent = 'Removed from Favorites';
-    });
-});
-
-//Function to remove a meal from favorites
-function removeFromFavourites(mealId) {
-    let favourites = JSON.parse(localStorage.getItem("favourites")) || [];
-    favourites = favourites.filter(meal => meal.idMeal !== mealId);
-    localStorage.setItem("favourites", JSON.stringify(favourites));
-    //Refresh the favorites view
-    viewFavsButton.click();
-}
